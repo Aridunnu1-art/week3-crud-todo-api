@@ -45,6 +45,31 @@ app.get('/todos/completed', (req, res) => {
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
 });
+// Get single todo by ID
+app.get('/todos/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const todo = todos.find(t => t.id === id);
 
+  if (!todo) return res.status(404).json({ message: "Todo not found" });
+
+  res.json(todo);
+});
+
+// Get active todos
+app.get('/todos/active', (req, res) => {
+  const activeTodos = todos.filter(todo => !todo.completed);
+  res.json(activeTodos);
+});
+
+// Validate POST
+app.post('/todos', (req, res) => {
+  const { task, completed } = req.body;
+
+  if (!task) return res.status(400).json({ message: "Task is required" });
+
+  const newTodo = { id: todos.length + 1, task, completed: completed || false };
+  todos.push(newTodo);
+  res.status(201).json(newTodo);
+});
 const PORT = 3002;
 app.listen(PORT, () => console.log(`Server on port ${PORT}`));
